@@ -1,42 +1,17 @@
 [
 	{
 		"slug": "cool-project",
-		"name": "Cool project 1",
+		"name": "AmberSoft",
 		"image": "placeholder.jpg",
-		"url": "https://www.google.com",
+		"url": "https://ambersoft.visualstudio.com/",
 		"date": "Jan 2014",
-		"tags": ["Angular JS","API"]
+		"tags": ["WPF"]
 	},
 	{
-		"name": "Cool project 2",
+		"name": "Azure Stack",
 		"image": "placeholder.jpg",
-		"url": "#",
-		"date": "May 2014",
-		"tags": ["Python","Django"]
-	},
-	{
-		"name": "Cool project 3",
-		"image": "placeholder.jpg",
-		"url": "#",
-		"date": "June 2014",
-		"tags": ["HTML","JQuery","Django"]
-	},
-	{
-		"name": "Cool project 4",
-		"image": "placeholder.jpg",
-		"date": "Oct 2016",
-		"tags": ["Python","nodejs"]
-	},
-	{
-		"name": "Cool project 5",
-		"image": "placeholder.jpg",
-		"date": "Oct 2016",
-		"tags": ["Python","nodejs"]
-	},
-	{
-		"name": "Cool project 6",
-		"image": "placeholder.jpg",
-		"date": "Oct 2016",
-		"tags": ["Python","nodejs"]
+		"url": "https://azure.microsoft.com/en-us/overview/azure-stack/",
+		"date": "Jan 2016",
+		"tags": ["AzureStack"]
 	}
 ]
