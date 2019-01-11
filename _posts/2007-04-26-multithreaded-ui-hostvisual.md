@@ -1,6 +1,10 @@
 ---
-published: false
+layout: post
+title:  "Replace backend gmail to Postmarkapp for Django"
+date:   2016-04-19 20:15:33 +0700
+categories: [django]
 ---
+
 ## Background: The WPF Threading Model
 
 In general, objects in WPF can only be accessed from the thread that created them.  Sometimes this restriction is confused with the UI thread, but this is not true, and it is perfectly fine for objects to live on other threads.  But it is not generally possible to create an object on one thread, and access it from another.  In almost all cases this will result in an InvalidOperationException, stating that **“The calling thread cannot access this object because a different thread owns it.”**
