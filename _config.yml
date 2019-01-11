@@ -1,10 +1,8 @@
 title: Presentation Source
-description: My Personal Stack Problems
-author: Agus Makmun
-github: https://github.com/agusmakmun
-about: I am freelance developer. Currently doing more in backend, focused in Python and Django.
-disqus_shortname: stackproblems
-google_analytics: UA-XXXXXXXX-Y
+description: Technical Blog
+author: Dwayne Need
+github: https://github.com/DwayneNeed
+about: I am a developer at Microsoft, mostly interested in .Net development.
 avatar_url: /static/img/avatar.jpg
 
 enableTags: true
@@ -19,16 +17,16 @@ social:
     - icon: fa-facebook
       link: "#"
     - icon: fa-twitter
-      link: "https://twitter.com/agusmakmun6"
+      link: "https://twitter.com/DwayneNeed"
     - icon: fa-linkedin
       link: "https://www.linkedin.com/in/summonagus"
     - icon: fa-stack-exchange
       link: "#"
     - icon: fa-github
-      link: "https://github.com/agusmakmun"
+      link: "https://github.com/DwayneNeed"
 
 share:
-  twitter_username: agusmakmun6
+  twitter_username: DwayneNeed
   fb_appid: 1749788565247320
 
 urls:
@@ -39,7 +37,7 @@ urls:
     - text: XML Feed
       url: /feed.xml
 
-url: "https://agusmakmun.github.io"
+url: "https://dwayneneed.github.io"
 baseurl: ""
 paginate: 20
 per_page: 20
