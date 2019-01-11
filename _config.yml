@@ -14,20 +14,13 @@ collections:
     permalink: /project/:path/
 
 social:
-    - icon: fa-facebook
-      link: "#"
     - icon: fa-twitter
       link: "https://twitter.com/DwayneNeed"
-    - icon: fa-linkedin
-      link: "https://www.linkedin.com/in/summonagus"
-    - icon: fa-stack-exchange
-      link: "#"
     - icon: fa-github
       link: "https://github.com/DwayneNeed"
 
 share:
   twitter_username: DwayneNeed
-  fb_appid: 1749788565247320
 
 urls:
     - text: About Me
