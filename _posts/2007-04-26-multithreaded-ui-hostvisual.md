@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 'Multithreaded UI: HostVisual'
-date: {}
+date: '2007-04-26'
 categories:
   - WPF
 published: true
