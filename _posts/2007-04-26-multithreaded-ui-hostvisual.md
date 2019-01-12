@@ -29,8 +29,8 @@ If your scenario doesn’t require interactivity (meaning input), then there is 
 
 The first problem to solve is that the HostVisual class derives from Visual.  I can't use an existing panel, such as Border, to host this visual.  Border derives from Decorator, which is the standard base class for panels that have a single child.  Unfortunately, the child is strongly typed to be a UIElement.  I have to use a HostVisual, which does not derive from UIElement. There is no built-in way that I know of to place a Visual as a child of one of the standard elements (such as Border, Grid, Canvas, etc).  So we make our own:
 
-```C#
-NewCode();
+{% highlight C# %}
+NewCode3();
 
     [ContentProperty("Child")]
     public class VisualWrapper : FrameworkElement
@@ -80,7 +80,7 @@ NewCode();
 
         private Visual _child;
     }
-```
+{% endhighlight %}
 
 ## Issue #2: Layout and the Loaded event
 
