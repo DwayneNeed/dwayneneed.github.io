@@ -55,19 +55,38 @@ a:hover {
   margin-right: .5em;
 }
 
-/* Content */
-div.content pre {
-  background: #333333;
-  padding: 10px;
-  color: #FFF;
-  overflow-x: auto;
-  font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
-  font-size: 12px;
-  border: none;
+/* BEGIN block quote CSS from minima */
+blockquote{
+    color:#828282;
+    border-left:4px solid #e8e8e8;
+    padding-left:15px;
+    font-size:18px;
+    letter-spacing:-1px;
+    font-style:italic
 }
-div.content .highlight {
-	background: #333333;
+blockquote>:last-child{
+    margin-bottom:0
 }
+pre,code{
+    font-size:15px;
+    border:1px solid #e8e8e8;
+    border-radius:3px;
+    background-color:#eef
+}
+code{
+    padding:1px 5px
+}
+pre{
+    padding:8px 12px;
+    overflow-x:auto
+}
+pre>code{
+    border:0;
+    padding-right:0;
+    padding-left:0
+}
+/* END block quote CSS from minima */
+
 footer {
   border-top: 1px solid #F7F1F1;
   width: 100%;
