@@ -130,7 +130,7 @@ While most of the imaging classes are sealed, WPF does actually support external
 * virtual BitmapPalette Palette {get;}
 * virtual void CopyPixels(Int32Rect sourceRect, Array pixels, int stride, int offset);
 * virtual void CopyPixels(Array pixels, int stride, int offset);
-* virtual void CopyPixels(Int32Rect sourceRect, IntPtr buffer, int bufferSize, int stride); 
+* virtual void CopyPixels(Int32Rect sourceRect, IntPtr buffer, int bufferSize, int stride);  
 Important note: because your custom bitmap class has to override the CopyPixels method that handles a raw memory pointer it can only run in full trust.
 * virtual bool IsDownloading {get;}
 * virtual event EventHandler DownloadCompleted {add; remove;}
@@ -162,12 +162,8 @@ This class processes a source and converts the image to a sepia color scheme.  T
 #### GrayscaleBitmap 
 This class processes a source and converts the image to a grayscale color scheme.  The algorithm is taken from http://en.wikipedia.org/wiki/Grayscale, and operates in the linear scRGB color space.  For simplicity, we only process Bgr32 or Bgra32 formatted bitmaps, anything else is converted to one of those formats.  Bgr32 and Bgra32 share the same memory layout for the RGB channels.
 
- 
-
 ## Demo
 I created a simple demo and included it on the codeplex site.  It simply allows you to select a URI (I provide a list of images from www.microsoft.com, or you can enter your own), and then chain together up to two of the custom bitmap sources.  The app handles the case where the BitmapImage may still be downloading, and defers creating the chain until the content is ready.  Make your own CustomBitmap classes and try them out!
 
- 
-
-## Stay Tuned...
+#### Stay Tuned...
 Next we'll turn our attention to addressing the static processing limitations of the built-in WPF imaging classes.
