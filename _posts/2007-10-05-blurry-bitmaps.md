@@ -44,9 +44,8 @@ WPF anticipated that there would be cases where people wanted to align with the 
 
 All is not lost.  Even though WPF wants really badly to be resolution independent, we can force it to be pixel aligned ourselves.  In fact, this isn't even very hard.  We just need to do two things:
 
-Size ourselves to real pixel sizes.
-
-Position ourselves on pixel boundaries.
+1. Size ourselves to real pixel sizes.
+1. Position ourselves on pixel boundaries.
 
 For sizing, we can easily participate in the measure pass, and return a measure size that is equivalent to the desired pixel size.  The transform used to factor in the system DPI is provided for us in CompositionTarget.TransformFromDevice.  The pixel size is in "device" coordinates, and we transform from the device into measure units.  Easy enough.
 
@@ -56,15 +55,11 @@ For positioning, we could participate in the arrange pass, and maybe apply a ren
 
 The code included below introduces a new class called Bitmap.  Bitmap is a replacement for Image, but instead of displaying any image source, it only displays bitmap sources.  This lets me access the PixelWidth and PixelHeight properties for determining the appropriate size.  The important aspects of this class are:
 
-Derived from UIElement instead of FrameworkElement because I don’t want things like MinWidth, MaxWidth, or even Width.
-
-Bitmap.Source can be set to any BitmapSource.
-
-When measured, it will return the appropriate measure units to display the bitmap’s PixelWidth and PixelHeight
-
-When rendered, it will offset the image it draws to align with the pixel grid
-
-Whenever layout updates, it checks to see if it needs to re-render to align to the pixel grid again.
+* Derived from UIElement instead of FrameworkElement because I don’t want things like MinWidth, MaxWidth, or even Width.
+* Bitmap.Source can be set to any BitmapSource.
+* When measured, it will return the appropriate measure units to display the bitmap’s PixelWidth and PixelHeight
+* When rendered, it will offset the image it draws to align with the pixel grid
+* Whenever layout updates, it checks to see if it needs to re-render to align to the pixel grid again.
 
 Its a pretty straight-forward class, check out the source code for the details.
 
