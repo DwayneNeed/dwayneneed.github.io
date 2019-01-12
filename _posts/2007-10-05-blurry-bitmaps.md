@@ -6,6 +6,8 @@ categories:
   - WPF
 published: true
 ---
+![Blurry images](static/img/_posts/blurrybitmaps_thumb.png)
+
 ## Background: resolution independence
 
 WPF was designed from the start to be resolution independent.  So instead of designing your UI in terms of pixels, you are encouraged to use a physical measuring unit (like inches).  When you specify coordinates in WPF, you are actually using "measure units", which are defined to be 1/96th of an inch.  This was chosen because 96 DPI monitor settings are very common.
