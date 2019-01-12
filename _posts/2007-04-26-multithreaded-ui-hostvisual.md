@@ -162,7 +162,7 @@ The demo will be a grid showing 3 movies, each rendered on a different backgroun
 
 The XAML simply defines a grid with 3 columns and puts a VisualWrapper in each column.  This is where we will be putting the HostVisual from code.  It would be cool  to build a class that automatically displays its content on another thread, but we would have to change the parser to support switching threads since the thread an object is created on is the thread that owns that object.  Anyways, the simple XAML is:
 
-{% highlight C# %}
+{% highlight XML %}
 <Window x:Class="VisualTargetDemo.Window1"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
