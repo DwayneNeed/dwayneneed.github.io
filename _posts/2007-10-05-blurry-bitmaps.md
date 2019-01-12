@@ -6,7 +6,7 @@ categories:
   - WPF
 published: true
 ---
-![Blurry images](static/img/_posts/blurrybitmaps_thumb.png)
+![Blurry images](https://raw.githubusercontent.com/dwayneneed/dwayneneed.github.io/master/static/img/_posts/blurrybitmaps_thumb.png)
 
 ## Background: resolution independence
 
@@ -24,11 +24,11 @@ Bitmaps are often produced by designers using high-end editing tools.  Presume t
 
 Bitmaps are difficult because they encode "high frequency" information in the form of per-pixel color information.  If the bitmap is displayed at a slightly different size, the result can be very blurry.  I won't bore you with lots of examples, but consider this one.  Say you have a bitmap that is 3x3 pixels.  It looks like this:
 
-redbar
+![Clear red bar](https://raw.githubusercontent.com/dwayneneed/dwayneneed.github.io/master/static/img/_posts/redbar_thumb_1.png)
 
 Now, if we scale this just a bit, such that the image will fit into 4x4 pixels, the result suffers from the fact that we can't represent each source pixel equally in the destination grid.  In fact, each original pixel "expands" by 1/3.  But of course, the final pixel can only have one color, so we have to combine overlapping samples.  We can try various blending techniques, but they all have problems.  The result will look something like this:
 
-pinkbar
+![Blurry pink bar](https://raw.githubusercontent.com/dwayneneed/dwayneneed.github.io/master/static/img/_posts/pinkbar_thumb.png)
 
 The human eye can easily detect this artifact, and we tend to associate the result with being out of focus, or blurry.  It can be very irritating.
 
