@@ -3,7 +3,7 @@ description: Technical Blog
 author: Dwayne Need
 github: https://github.com/DwayneNeed
 about: I am a developer at Microsoft, mostly interested in .Net development.
-avatar_url: /static/img/me_2019_large.PNG
+avatar_url: /static/img/me_2019_small.PNG
 
 enableTags: true
 tagarray: []
