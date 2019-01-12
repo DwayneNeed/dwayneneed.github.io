@@ -30,8 +30,6 @@ If your scenario doesn’t require interactivity (meaning input), then there is 
 The first problem to solve is that the HostVisual class derives from Visual.  I can't use an existing panel, such as Border, to host this visual.  Border derives from Decorator, which is the standard base class for panels that have a single child.  Unfortunately, the child is strongly typed to be a UIElement.  I have to use a HostVisual, which does not derive from UIElement. There is no built-in way that I know of to place a Visual as a child of one of the standard elements (such as Border, Grid, Canvas, etc).  So we make our own:
 
 {% highlight C# %}
-NewCode3();
-
     [ContentProperty("Child")]
     public class VisualWrapper : FrameworkElement
     {
@@ -86,7 +84,7 @@ NewCode3();
 
 WPF provides a very convenient event called “Loaded”.  This event basically signals when an element has been fully initialized, measured, arranged, rendered, and plugged into a presentation source (such as a window).  Many elements use this event, including the MediaElement, but sadly this event is not raised for element trees that are not plugged into a presentation source, and displaying an element tree through the HostVisual/VisualTarget doesn’t count.  So work around this, we make our own presentation source and use it to root the element tree that the worker thread will own.  This immediately leads into another problem: layout is suspended on all elements until resumed by a presentation source.  Unfortunately the official mechanism to do this is internal, so the best we can do is to explicitly measure and arrange the root element.  Thus we have our VisualTargetPresentationSource class:
 
-~~~ C#
+{% highlight C# %}
     public class VisualTargetPresentationSource : PresentationSource
     {
         public VisualTargetPresentationSource(HostVisual hostVisual)
@@ -141,21 +139,20 @@ WPF provides a very convenient event called “Loaded”.  This event basically 
  
         private VisualTarget _visualTarget;
     }
-
-~~~
+{% endhighlight %}
 
 ## Background Threads
 
 It is easy to make threads in C#.  One trick to be aware of is that you must mark the thread as being a “background” thread, otherwise the application will keep running as long as those threads are alive.  Also remember that parts of WPF require that its threads to be initialized for COM’s “Single Threaded Apartment”.   All of this is easy enough to do, and you’ll see this code later on:
 
-~~~ C#
+{% highlight C# %}
 Thread thread = new Thread(/*…*/);
 
 thread.ApartmentState = ApartmentState.STA;
 
 thread.IsBackground = true;
 thread.Start(/*…*/);
-~~~
+{% endhighlight %}
 
 ## The Demo
 
@@ -165,7 +162,7 @@ The demo will be a grid showing 3 movies, each rendered on a different backgroun
 
 The XAML simply defines a grid with 3 columns and puts a VisualWrapper in each column.  This is where we will be putting the HostVisual from code.  It would be cool  to build a class that automatically displays its content on another thread, but we would have to change the parser to support switching threads since the thread an object is created on is the thread that owns that object.  Anyways, the simple XAML is:
 
-~~~ C#
+{% highlight C# %}
 <Window x:Class="VisualTargetDemo.Window1"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -188,13 +185,13 @@ The XAML simply defines a grid with 3 columns and puts a VisualWrapper in each c
                          Width="200" Height="100" x:Name="Player3"/>
   </Grid>
 </Window>
-~~~
+{% endhighlight %}
 
 ## The Code
 
 The code is also pretty simple.  For each of the 3 players, it creates a HostVisual on the UI thread, then spins up a background thread, creates a MediaElement, puts it inside a VisualTarget (which points back to the HostVisual), and puts it all inside our hacky VisualTargetPresentationSource.
 
-~~~ C#
+{% highlight C# %}
     public partial class Window1 : System.Windows.Window
     {
         public Window1()
@@ -260,7 +257,7 @@ The code is also pretty simple.  For each of the 3 players, it creates a HostVis
  
         private static AutoResetEvent s_event = new AutoResetEvent(false);
     }
-~~~
+{% endhighlight %}
 
 ## Summary
 
