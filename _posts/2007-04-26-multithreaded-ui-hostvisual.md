@@ -30,54 +30,54 @@ If your scenario doesn’t require interactivity (meaning input), then there is 
 The first problem to solve is that the HostVisual class derives from Visual.  I can't use an existing panel, such as Border, to host this visual.  Border derives from Decorator, which is the standard base class for panels that have a single child.  Unfortunately, the child is strongly typed to be a UIElement.  I have to use a HostVisual, which does not derive from UIElement. There is no built-in way that I know of to place a Visual as a child of one of the standard elements (such as Border, Grid, Canvas, etc).  So we make our own:
 
 {% highlight C# %}
-    [ContentProperty("Child")]
-    public class VisualWrapper : FrameworkElement
+[ContentProperty("Child")]
+public class VisualWrapper : FrameworkElement
+{
+    public Visual Child
     {
-        public Visual Child
+        get
         {
-            get
-            {
-                return _child;
-            }
- 
-            set
-            {
-                if (_child != null)
-                {
-                    RemoveVisualChild(_child);
-                }
- 
-                _child = value;
- 
-                if (_child != null)
-                {
-                    AddVisualChild(_child);
-                }
-            }
+            return _child;
         }
  
-        protected override Visual GetVisualChild(int index)
+        set
         {
-            if (_child != null && index == 0)
+            if (_child != null)
             {
-                return _child;
+                RemoveVisualChild(_child);
             }
-            else
-            {
-                throw new ArgumentOutOfRangeException("index");
-            }
-        }
  
-        protected override int VisualChildrenCount
-        {
-            get
+            _child = value;
+ 
+            if (_child != null)
             {
-                return _child != null ? 1 : 0;
+                AddVisualChild(_child);
             }
         }
-
-        private Visual _child;
     }
+ 
+    protected override Visual GetVisualChild(int index)
+    {
+        if (_child != null && index == 0)
+        {
+            return _child;
+        }
+        else
+        {
+            throw new ArgumentOutOfRangeException("index");
+        }
+    }
+ 
+    protected override int VisualChildrenCount
+    {
+        get
+        {
+            return _child != null ? 1 : 0;
+        }
+    }
+
+    private Visual _child;
+}
 {% endhighlight %}
 
 ## Issue #2: Layout and the Loaded event
@@ -85,60 +85,60 @@ The first problem to solve is that the HostVisual class derives from Visual.  I 
 WPF provides a very convenient event called “Loaded”.  This event basically signals when an element has been fully initialized, measured, arranged, rendered, and plugged into a presentation source (such as a window).  Many elements use this event, including the MediaElement, but sadly this event is not raised for element trees that are not plugged into a presentation source, and displaying an element tree through the HostVisual/VisualTarget doesn’t count.  So work around this, we make our own presentation source and use it to root the element tree that the worker thread will own.  This immediately leads into another problem: layout is suspended on all elements until resumed by a presentation source.  Unfortunately the official mechanism to do this is internal, so the best we can do is to explicitly measure and arrange the root element.  Thus we have our VisualTargetPresentationSource class:
 
 {% highlight C# %}
-    public class VisualTargetPresentationSource : PresentationSource
+public class VisualTargetPresentationSource : PresentationSource
+{
+    public VisualTargetPresentationSource(HostVisual hostVisual)
     {
-        public VisualTargetPresentationSource(HostVisual hostVisual)
-        {
-            _visualTarget = new VisualTarget(hostVisual);
-        }
- 
-        public override Visual RootVisual
-        {
-            get
-            {
-                return _visualTarget.RootVisual;
-            }
- 
-            set
-            {
-                Visual oldRoot = _visualTarget.RootVisual;
- 
-                // Set the root visual of the VisualTarget.  This visual will
-                // now be used to visually compose the scene.
-                _visualTarget.RootVisual = value;
- 
-                // Tell the PresentationSource that the root visual has
-                // changed.  This kicks off a bunch of stuff like the
-                // Loaded event.
-                RootChanged(oldRoot, value);
- 
-                // Kickoff layout...
-                UIElement rootElement = value as UIElement;
-                if (rootElement != null)
-                {
-                    rootElement.Measure(new Size(Double.PositiveInfinity,
-                                                 Double.PositiveInfinity));
-                    rootElement.Arrange(new Rect(rootElement.DesiredSize));
-                }
-            }
-        }
- 
-        protected override CompositionTarget GetCompositionTargetCore()
-        {
-            return _visualTarget;
-        }
- 
-        public override bool IsDisposed
-        {
-            get
-            {
-                // We don't support disposing this object.
-                return false;
-            }
-        }
- 
-        private VisualTarget _visualTarget;
+        _visualTarget = new VisualTarget(hostVisual);
     }
+ 
+    public override Visual RootVisual
+    {
+        get
+        {
+            return _visualTarget.RootVisual;
+        }
+ 
+        set
+        {
+            Visual oldRoot = _visualTarget.RootVisual;
+ 
+            // Set the root visual of the VisualTarget.  This visual will
+            // now be used to visually compose the scene.
+            _visualTarget.RootVisual = value;
+ 
+            // Tell the PresentationSource that the root visual has
+            // changed.  This kicks off a bunch of stuff like the
+            // Loaded event.
+            RootChanged(oldRoot, value);
+ 
+            // Kickoff layout...
+            UIElement rootElement = value as UIElement;
+            if (rootElement != null)
+            {
+                rootElement.Measure(new Size(Double.PositiveInfinity,
+                                             Double.PositiveInfinity));
+                rootElement.Arrange(new Rect(rootElement.DesiredSize));
+            }
+        }
+    }
+ 
+    protected override CompositionTarget GetCompositionTargetCore()
+    {
+        return _visualTarget;
+    }
+ 
+    public override bool IsDisposed
+    {
+        get
+        {
+            // We don't support disposing this object.
+            return false;
+        }
+    }
+ 
+    private VisualTarget _visualTarget;
+}
 {% endhighlight %}
 
 ## Background Threads
@@ -192,71 +192,71 @@ The XAML simply defines a grid with 3 columns and puts a VisualWrapper in each c
 The code is also pretty simple.  For each of the 3 players, it creates a HostVisual on the UI thread, then spins up a background thread, creates a MediaElement, puts it inside a VisualTarget (which points back to the HostVisual), and puts it all inside our hacky VisualTargetPresentationSource.
 
 {% highlight C# %}
-    public partial class Window1 : System.Windows.Window
+public partial class Window1 : System.Windows.Window
+{
+    public Window1()
     {
-        public Window1()
-        {
-            InitializeComponent();
-        }
- 
-        private void OnLoaded(object sender, RoutedEventArgs e)
-        {
-            Player1.Child = CreateMediaElementOnWorkerThread();
-            Player2.Child = CreateMediaElementOnWorkerThread();
-            Player3.Child = CreateMediaElementOnWorkerThread();
-        }
- 
-        private HostVisual CreateMediaElementOnWorkerThread()
-        {
-            // Create the HostVisual that will "contain" the VisualTarget
-            // on the worker thread.
-            HostVisual hostVisual = new HostVisual();
- 
-            // Spin up a worker thread, and pass it the HostVisual that it
-            // should be part of.
-            Thread thread = new Thread(new ParameterizedThreadStart(MediaWorkerThread));
-            thread.ApartmentState = ApartmentState.STA;
-            thread.IsBackground = true;
-            thread.Start(hostVisual);
- 
-            // Wait for the worker thread to spin up and create the VisualTarget.
-            s_event.WaitOne();
- 
-            return hostVisual;
-        }
- 
-        private FrameworkElement CreateMediaElement()
-        {
-            // Create a MediaElement, and give it some video content.
-            MediaElement mediaElement = new MediaElement();
-            mediaElement.BeginInit();
-            mediaElement.Source = new Uri("http://download.microsoft.com/download/2/C/4/2C433161-F56C-4BAB-BBC5-B8C6F240AFCC/SL_0410_448x256_300kb_2passCBR.wmv?amp;clcid=0x409");
-            mediaElement.Width = 200;
-            mediaElement.Height = 100;
-            mediaElement.EndInit();
- 
-            return mediaElement;
-        }
- 
-        private void MediaWorkerThread(object arg)
-        {
-            // Create the VisualTargetPresentationSource and then signal the
-            // calling thread, so that it can continue without waiting for us.
-            HostVisual hostVisual = (HostVisual)arg;
-            VisualTargetPresentationSource visualTargetPS = new VisualTargetPresentationSource(hostVisual);
-            s_event.Set();
- 
-            // Create a MediaElement and use it as the root visual for the
-            // VisualTarget.
-            visualTargetPS.RootVisual = CreateMediaElement();
- 
-            // Run a dispatcher for this worker thread.  This is the central
-            // processing loop for WPF.
-            System.Windows.Threading.Dispatcher.Run();
-        }
- 
-        private static AutoResetEvent s_event = new AutoResetEvent(false);
+        InitializeComponent();
     }
+ 
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        Player1.Child = CreateMediaElementOnWorkerThread();
+        Player2.Child = CreateMediaElementOnWorkerThread();
+        Player3.Child = CreateMediaElementOnWorkerThread();
+    }
+ 
+    private HostVisual CreateMediaElementOnWorkerThread()
+    {
+        // Create the HostVisual that will "contain" the VisualTarget
+        // on the worker thread.
+        HostVisual hostVisual = new HostVisual();
+ 
+        // Spin up a worker thread, and pass it the HostVisual that it
+        // should be part of.
+        Thread thread = new Thread(new ParameterizedThreadStart(MediaWorkerThread));
+        thread.ApartmentState = ApartmentState.STA;
+        thread.IsBackground = true;
+        thread.Start(hostVisual);
+ 
+        // Wait for the worker thread to spin up and create the VisualTarget.
+        s_event.WaitOne();
+ 
+        return hostVisual;
+    }
+ 
+    private FrameworkElement CreateMediaElement()
+    {
+        // Create a MediaElement, and give it some video content.
+        MediaElement mediaElement = new MediaElement();
+        mediaElement.BeginInit();
+        mediaElement.Source = new Uri("http://download.microsoft.com/download/2/C/4/2C433161-F56C-4BAB-BBC5-B8C6F240AFCC/SL_0410_448x256_300kb_2passCBR.wmv?amp;clcid=0x409");
+        mediaElement.Width = 200;
+        mediaElement.Height = 100;
+        mediaElement.EndInit();
+ 
+        return mediaElement;
+    }
+ 
+    private void MediaWorkerThread(object arg)
+    {
+        // Create the VisualTargetPresentationSource and then signal the
+        // calling thread, so that it can continue without waiting for us.
+        HostVisual hostVisual = (HostVisual)arg;
+        VisualTargetPresentationSource visualTargetPS = new VisualTargetPresentationSource(hostVisual);
+        s_event.Set();
+ 
+        // Create a MediaElement and use it as the root visual for the
+        // VisualTarget.
+        visualTargetPS.RootVisual = CreateMediaElement();
+ 
+        // Run a dispatcher for this worker thread.  This is the central
+        // processing loop for WPF.
+        System.Windows.Threading.Dispatcher.Run();
+    }
+ 
+    private static AutoResetEvent s_event = new AutoResetEvent(false);
+}
 {% endhighlight %}
 
 ## Summary
