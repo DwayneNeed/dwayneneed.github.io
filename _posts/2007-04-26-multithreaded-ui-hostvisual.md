@@ -84,7 +84,7 @@ public class VisualWrapper : FrameworkElement
 
 WPF provides a very convenient event called “Loaded”.  This event basically signals when an element has been fully initialized, measured, arranged, rendered, and plugged into a presentation source (such as a window).  Many elements use this event, including the MediaElement, but sadly this event is not raised for element trees that are not plugged into a presentation source, and displaying an element tree through the HostVisual/VisualTarget doesn’t count.  So work around this, we make our own presentation source and use it to root the element tree that the worker thread will own.  This immediately leads into another problem: layout is suspended on all elements until resumed by a presentation source.  Unfortunately the official mechanism to do this is internal, so the best we can do is to explicitly measure and arrange the root element.  Thus we have our VisualTargetPresentationSource class:
 
-{% highlight C# %}
+~~~ C#
 public class VisualTargetPresentationSource : PresentationSource
 {
     public VisualTargetPresentationSource(HostVisual hostVisual)
@@ -139,20 +139,20 @@ public class VisualTargetPresentationSource : PresentationSource
  
     private VisualTarget _visualTarget;
 }
-{% endhighlight %}
+~~~
 
 ## Background Threads
 
 It is easy to make threads in C#.  One trick to be aware of is that you must mark the thread as being a “background” thread, otherwise the application will keep running as long as those threads are alive.  Also remember that parts of WPF require that its threads to be initialized for COM’s “Single Threaded Apartment”.   All of this is easy enough to do, and you’ll see this code later on:
 
-{% highlight C# %}
+``` C#
 Thread thread = new Thread(/*…*/);
 
 thread.ApartmentState = ApartmentState.STA;
 
 thread.IsBackground = true;
 thread.Start(/*…*/);
-{% endhighlight %}
+```
 
 ## The Demo
 
