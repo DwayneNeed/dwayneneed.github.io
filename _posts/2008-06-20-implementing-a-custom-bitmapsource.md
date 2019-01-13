@@ -6,7 +6,7 @@ categories:
   - WPF
 published: true
 ---
-![screenshot of demo application](/_posts/image_thumb_5.png)
+![screenshot of demo application](/static/img/2008-06-20-implementing-a-custom-bitmapsource_demo-screenshot.png)
 
 ## Windows Imaging Component
 WPF uses the Windows Imaging Component (WIC) library to process bitmap data. WIC presents a data flow for bitmap processing that is both simple and powerful. The basic interface for bitmap processing in WIC is IWICBitmapSource. This interface provides a common way of accessing and linking together bitmaps, decoders, format converters, and other bitmap processing components. Components that implement this interface can be connected together in a graph to pull imaging data through.  For example:
