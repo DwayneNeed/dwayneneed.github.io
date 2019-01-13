@@ -145,13 +145,13 @@ This class represents a custom bitmap that will be chained such that it processe
 This class processes a source and produces Bgra32 bits, where all source pixels are opaque except for one color that is transparent.  You can specify this color explicitly be setting the TransparentColor property.  If this property is not set, the color of the pixel at (0,0) will be used as the transparent color.  For simplicity, we only process Bgra32 formatted bitmaps, anything else is converted to Bgra32.  Converting a pixel format that does not have an alpha channel to Bgra32 simply creates an opaque alpha value.  ColorKeyBitmap then changes the alpha channel for pixels that match the transparent color.
 
 #### SepiaBitmap 
-This class processes a source and converts the image to a sepia color scheme.  The algorithm is taken from http://msdn.microsoft.com/en-us/magazine/cc163866.aspx, and operates in the linear scRGB color space.  For simplicity, we only process Bgr32 or Bgra32 formatted bitmaps, anything else is converted to one of those formats.  Bgr32 and Bgra32 share the same memory layout for the RGB channels.
+This class processes a source and converts the image to a sepia color scheme.  The algorithm is taken from <http://msdn.microsoft.com/en-us/magazine/cc163866.aspx>, and operates in the linear scRGB color space.  For simplicity, we only process Bgr32 or Bgra32 formatted bitmaps, anything else is converted to one of those formats.  Bgr32 and Bgra32 share the same memory layout for the RGB channels.
 
 #### GrayscaleBitmap 
-This class processes a source and converts the image to a grayscale color scheme.  The algorithm is taken from http://en.wikipedia.org/wiki/Grayscale, and operates in the linear scRGB color space.  For simplicity, we only process Bgr32 or Bgra32 formatted bitmaps, anything else is converted to one of those formats.  Bgr32 and Bgra32 share the same memory layout for the RGB channels.
+This class processes a source and converts the image to a grayscale color scheme.  The algorithm is taken from <http://en.wikipedia.org/wiki/Grayscale>, and operates in the linear scRGB color space.  For simplicity, we only process Bgr32 or Bgra32 formatted bitmaps, anything else is converted to one of those formats.  Bgr32 and Bgra32 share the same memory layout for the RGB channels.
 
 ## Demo
-I created a simple demo and included it on the codeplex site.  It simply allows you to select a URI (I provide a list of images from www.microsoft.com, or you can enter your own), and then chain together up to two of the custom bitmap sources.  The app handles the case where the BitmapImage may still be downloading, and defers creating the chain until the content is ready.  Make your own CustomBitmap classes and try them out!
+I created a simple demo and included it on the codeplex site.  It simply allows you to select a URI (I provide a list of images from <www.microsoft.com>, or you can enter your own), and then chain together up to two of the custom bitmap sources.  The app handles the case where the BitmapImage may still be downloading, and defers creating the chain until the content is ready.  Make your own CustomBitmap classes and try them out!
 
 #### Stay Tuned...
 Next we'll turn our attention to addressing the static processing limitations of the built-in WPF imaging classes.
