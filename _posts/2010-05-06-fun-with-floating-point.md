@@ -41,10 +41,10 @@ Today, we normally represent numbers in [decimal](http://en.wikipedia.org/wiki/D
 ![decimal positional notation example](/static/img/2010-05-06-fun-with-floating-point_decimal-positional-notation.gif)
 
 [Exponential notation](http://en.wikipedia.org/wiki/Exponential_notation) can be used as a more compact representation of either very large or very small numbers.  For instance, the number 1,234,000,000,000 could be written a number of ways using exponential notation:
-![exponential notation example](/static/img/2010-05-06-fun-with-floating-point_exponential-notation-1.gif)
-![exponential notation example](/static/img/2010-05-06-fun-with-floating-point_exponential-notation-2.gif)
-![exponential notation example](/static/img/2010-05-06-fun-with-floating-point_exponential-notation-3.gif)
-![exponential notation example](/static/img/2010-05-06-fun-with-floating-point_exponential-notation-4.gif)
+![exponential notation example](/static/img/2010-05-06-fun-with-floating-point_exponential-notation-1.gif)  
+![exponential notation example](/static/img/2010-05-06-fun-with-floating-point_exponential-notation-2.gif)  
+![exponential notation example](/static/img/2010-05-06-fun-with-floating-point_exponential-notation-3.gif)  
+![exponential notation example](/static/img/2010-05-06-fun-with-floating-point_exponential-notation-4.gif)  
 
 > This last form is known as normalized exponential notation, and there is a unique representation of every number in this notation.  Which helps a lot when we try to represent numbers in computers.
 
