@@ -64,17 +64,17 @@ This class represents bitmap data that is cached in system memory.  You can call
 #### BitmapImage 
 This class is the main WPF imaging class for downloading and decoding a bitmap.  The ISupportInitialize interface is used to snap the values of the properties when initialization is complete.  Further changes to the properties are ignored. This class is very complex, and offers the following functionality:
 
-* Loading from a stream 
+* Loading from a stream  
 To load bitmap data from a stream, set the StreamSource property.
-* Loading from a Uri 
+* Loading from a Uri  
 To load bitmap data from a Uri, set the UriSource property.  BitmapImage implements IUriContext to facilitate the handling of relative Uris.  To control how the Uri is fetched from the WinINet cache, set the UriCachePolicy property.  For convenience in XAML, there is a custom type converter to convert from the HttpRequestCacheLevel enumeration.
-* Downloading 
+* Downloading  
 BitmapImage will download bitmap data from a network location on a background thread to avoid blocking the UI thread.  The IsDownloading property will indicate if the data is being downloaded.  The DownloadCompleted, DownloadFailed, and DownloadProgress events are raised as appropriate.  Note that the DownloadCompleted event is not raised if no downloading occurred.
-* Decoding 
+* Decoding  
 The bitmap data can be of any format, and WIC will search for an appropriate decoder. For efficiency, you can specify the DecodePixelWidth and DecodePixelHeight properties.  These properties will control the size of the decoded image in memory.  While downloading is done on a background thread, decoding is done on the UI thread.
-* Caching 
+* Caching  
 BitmapImage will store the decoded bitmap in system memory.  You can control when this happens by setting the CacheOption property.  BitmapImage also maintains a cache of previous BitmapImage instances (via weak references) so that loading the same Uri multiple times will share the same instance.  To avoid this cache, you can include the BitmapCreateOptions.IgnoreImageCache flag in the CreateOptions property.
-* Cropping & Rotating 
+* Cropping & Rotating  
 The SourceRect property can be set to indicate the area of the bitmap to crop, and the Rotation property can be set to specify a rotation to apply.  Certain decoders can implement these operations when decoding.
 
 #### InteropBitmap 
