@@ -5,4 +5,4 @@ I don't blog frequently, but when I find something particularly interesting I so
 This blog uses GitHub Pages, which is a static website generator integrated nicely into github.  Some details:
 * Jekyll generated site: <http://dwayneneed.github.io>
 * Forked from https://github.com/agusmakmun/agusmakmun.github.io
-* Online markdown editor <http://prose.io/#DwayneNeed/dwayneneed.github.io>
+
