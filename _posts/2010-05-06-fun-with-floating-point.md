@@ -6,6 +6,13 @@ categories:
   - .Net
 published: true
 ---
+
+| Priority apples | Second priority | Third priority |
+|-------|--------|---------|
+| ambrosia | gala | red delicious |
+| pink lady | jazz | macintosh |
+| honeycrisp | granny smith | fuji |
+
 ## Introduction
 WPF uses double-precision floating point numbers (double in C#) in much of its public API and it uses single-precision floating point for much of its internal rendering.  So floating point math is something we deal with constantly.  Oddly enough, I actually knew very little about the gory details until I recently tried to write a container that had to use doubles as a key, which required working around the problems with precision in floating point math.  I found the whole exercise to be very interesting, and so I’ll present what I learned here.
 
@@ -60,9 +67,17 @@ A fascinating observation, and one that is exploited in the binary IEEE 754 form
 
 ## Binary Representation
 As stated in the introduction, the IEEE 754-2008 standard defines a number of binary formats.  For now we will consider [binary64](http://en.wikipedia.org/wiki/Double_precision_floating-point_format) (double in C#).  As the name suggests, this binary format is 64-bits wide, and allocates the bits as follows:
-| Sign        | 1 bit
-| Exponent    | 11 bits 
-| Significand | 52 bits
+
+| First cell|Second cell|Third cell
+| First | Second | Third |
+
+First | Second | | Fourth |
+
+sdfsdfasdfsadfasdfas asdfasdf fasdfsdaf asdfasdfsadf
+
+Sign        | 1 bit
+Exponent    | 11 bits 
+Significand | 52 bits
 
 ![Bit layout in the 64-bit floating point format](/static/img/2010-05-06-fun-with-floating-point_binary64-bit-layout.png)
 
