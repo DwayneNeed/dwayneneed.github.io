@@ -1,17 +1,14 @@
 [
 	{
-		"slug": "cool-project",
 		"name": "AmberSoft",
 		"image": "placeholder.jpg",
 		"url": "https://ambersoft.visualstudio.com/",
-		"date": "Jan 2014",
-		"tags": ["WPF"]
+		"date": "Jan 2014"
 	},
 	{
 		"name": "Azure Stack",
 		"image": "placeholder.jpg",
 		"url": "https://azure.microsoft.com/en-us/overview/azure-stack/",
-		"date": "Jan 2016",
-		"tags": ["AzureStack"]
+		"date": "Jan 2016"
 	}
 ]
