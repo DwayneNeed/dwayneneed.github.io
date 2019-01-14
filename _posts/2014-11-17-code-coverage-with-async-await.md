@@ -3,7 +3,7 @@ layout: post
 title: 'Code Coverage with Async Await'
 date: '2014-11-17'
 categories:
-  - WPF
+  - .Net
 published: true
 ---
 It may be a fools errand, but it is sometimes tempting to chase the elusive goal of achieving 100% code-coverage with unit tests.  I’m not going to argue the merits of using code coverage as part of your test strategy, but if you do want to accurately measure your code coverage, things get tricky with methods that use the C# async await feature.  A quick internet search shows some of the frustration out there:
