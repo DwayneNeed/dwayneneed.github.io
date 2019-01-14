@@ -1,159 +1,209 @@
+---
+layout: post
+title: 'Code Coverage with Async Await'
+date: '2014-11-17'
+categories:
+  - WPF
+published: true
+---
 It may be a fools errand, but it is sometimes tempting to chase the elusive goal of achieving 100% code-coverage with unit tests.  I’m not going to argue the merits of using code coverage as part of your test strategy, but if you do want to accurately measure your code coverage, things get tricky with methods that use the C# async await feature.  A quick internet search shows some of the frustration out there:
-http://stackoverflow.com/questions/26373915/async-await-unit-test-code-coverage
-http://stackoverflow.com/questions/15603813/code-coverage-for-async-methods
-https://connect.microsoft.com/VisualStudio/feedback/details/729869/code-coverage-not-calculated-for-async-methods
-https://connect.microsoft.com/VisualStudio/feedback/details/816884/microsoft-unit-test-coverage-shows-partial-covered-code-for-async-method-call-in-unit-test-having-microsoft-unit-test-framework-using-moq
-The good news is that this issue has been fixed in the compilers included in VS2015, see the section at the bottom on this post for details.  The workarounds in this post only apply to earlier versions of the compilers.
+* <http://stackoverflow.com/questions/26373915/async-await-unit-test-code-coverage>
+* <http://stackoverflow.com/questions/15603813/code-coverage-for-async-methods>
+* <https://connect.microsoft.com/VisualStudio/feedback/details/729869/code-coverage-not-calculated-for-async-methods>
+* <https://connect.microsoft.com/VisualStudio/feedback/details/816884/microsoft-unit-test-coverage-shows-partial-covered-code-for-async-method-call-in-unit-test-having-microsoft-unit-test-framework-using-moq>
+
+The good news is that this issue has been fixed in Visual Studio 2015 - see the section at the bottom on this post for details.  The workarounds in this post only apply to earlier versions of the tool chain.
+
 For the purpose of this post, let’s consider a very simple unit of code we want to ensure has complete coverage by unit tests.  Here I’ve used a Func<Task> as a unit dependency - rather than an interface with a method that returns a Task - simply to make the code more concise.
-   1: public class SampleClass
-   2: {
-   3:     private Func<Task> someDependency;
-   4:
-   5:     public SampleClass(Func<Task> someDependency)
-   6:     {
-   7:         this.someDependency = someDependency;
-   8:     }
-   9:
-  10:     public async Task SampleAsyncMethod()
-  11:     {
-  12:         Trace.TraceInformation("Before");
-  13:         await this.someDependency();
-  14:         Trace.TraceInformation("After");
-  15:     }
-  16: }
+
+{% highlight C# %}
+public class SampleClass
+{
+    private Func<Task> someDependency;
+
+    public SampleClass(Func<Task> someDependency)
+    {
+        this.someDependency = someDependency;
+    }
+
+    public async Task SampleAsyncMethod()
+    {
+        Trace.TraceInformation("Before");
+        await this.someDependency();
+        Trace.TraceInformation("After");
+    }
+}
+{% endhighlight %}
+
 When we go to unit test this, we generally mock the unit’s dependencies in order to isolate the logic of the unit under test.  Of course, we would also verify results, calls, exceptions, etc.  An example of a simple unit test might be:
-   1: [TestClass]
-   2: public class SampleUnitTest
-   3: {
-   4:     [TestMethod]
-   5:     public async Task SampleClassSampleMethodShouldSucceed()
-   6:     {
-   7:         Func<Task> func = () => Task.FromResult(0);
-   8:
-   9:         SampleClass sampleClass = new SampleClass(func);
-  10:         await sampleClass.SampleAsyncMethod();
-  11:     }
-  12: }
+
+{% highlight C# %}
+[TestClass]
+public class SampleUnitTest
+{
+    [TestMethod]
+    public async Task SampleClassSampleMethodShouldSucceed()
+    {
+        Func<Task> func = () => Task.FromResult(0);
+   
+        SampleClass sampleClass = new SampleClass(func);
+        await sampleClass.SampleAsyncMethod();
+    }
+}
+{% endhighlight %}
+
 This example is trivial of course, but it should be sufficient to exercise the sample code.  However, when you look at the code coverage results, the await statements show as not being covered.  For example:
+
+![example of missing code coverage](/static/img/2014-11-17-code-coverage-with-async-await_missing-coverage-1.png)
 
 In some cases you may find that you need to call an async method that you are not able to properly inject such that a unit test could provide an implementation.  If that async method actually returns a task that is synchronously complete (often via Task.FromResult(0)), you will encounter the same code coverage problem.
 For example:
 
-The reason the code is not shown as being covered has to do with how async methods are implemented.  The C# compiler actually translates the code in async methods into a class that implements a state machine, and transforms the original method into a stub that initialized and invokes that state machine.  Since this code is generated in your assembly, it is included in the code coverage analysis.
-The class generated by the compiler correctly has the [CompilerGenerated] attribute applied.  It should be possible to exclude all classes with the [CompilerGenerated] attribute from code coverage - in fact, the default runsettings file is supposed to be configured this way – but this doesn’t seem to work.  However, even if this would work, it probably wouldn’t be what we want – even though the state machine code is generated by the compiler, it contains the chunks of code that we wrote, and it would be wrong to exclude that code from coverage.
+![example of missing code coverage](/static/img/2014-11-17-code-coverage-with-async-await_missing-coverage-2.png)
+
+The reason the code is not shown as being covered has to do with how async methods are implemented.  The C# compiler actually translates the code in async methods into a class that implements a [state machine](http://www.codeproject.com/Articles/535635/Async-Await-and-the-Generated-StateMachine), and transforms the original method into a stub that initialized and invokes that state machine.  Since this code is generated in your assembly, it is included in the code coverage analysis.
+
+The class generated by the compiler correctly has the CompilerGenerated attribute applied.  It should be possible to exclude all classes with the CompilerGenerated attribute from code coverage - in fact, the default runsettings file is supposed to be configured this way – but this [doesn’t seem to work](http://karlz.net/blog/index.php/2013/02/14/is-my-codecoverage-runsettings-file-wrong/).  However, even if this would work, it probably wouldn’t be what we want – even though the state machine code is generated by the compiler, it contains the chunks of code that we wrote, and it would be wrong to exclude that code from coverage.
+
 The good news is that we can get full coverage by using a task that completes asynchronously.  For example, if we change the unit test code to provide a Func<Task> that returns a task that completes after some short time, then the code coverage is reported as 100%.  However, this is not really a robust solution, because using real timeouts in unit test code is fragile – if you use too small of a timeout, your tasks can sometimes be completed by the time the unit uses them resulting in synchronous behavior; if you use too large of a timeout, you slow down the unit tests unnecessarily.  But it does provide an important clue: somewhere in the state machinery generated by the compiler are statement blocks that are only executed when the task is not synchronously complete.  This is actually quite reasonable; if the task being awaited is not synchronously complete the state machine has to hook up the completed continuation that will re-enter the state machine when the task completes.
-This suggests that one way to workaround our coverage problem is to force all Tasks to be asynchronous.  Ideally, this kind of asynchronous behavior would be to complete immediately after the awaitable statement checks for whether or not it is completed.  This would force the state machine to go through the statement blocks that hook up the task continuation, but would not incur the arbitrary and fragile time delay.
+   
+This suggests that one way to workaround our coverage problem is to force all Tasks to be asynchronous.  Ideally, this kind of asynchronous behavior would be to complete immediately **after** the awaitable statement checks for whether or not it is completed.  This would force the state machine to go through the statement blocks that hook up the task continuation, but would not incur the arbitrary and fragile time delay.
+
 The traditional mechanism for controlling your own Task is the TaskCompletionSource, but this does not allow this kind of fine-grained control of when the task is completed.  Our desired behavior is almost what the Task.Yield() method provides, but not quite.  The Task.Yield() method will post to the current synchronization context and return an awaitable object.  The default synchronization context will queue the completion work to the thread pool, so it remains a race condition as to whether or not the task is completed by the time the call returns to the await statement.
-As you may have noticed, Task.Yield() does not return a Task; it returns a YieldAwaitable.  It turns out that the await keyword is not actually restricted to a Task.  The compiler allows that await keyword to be used in any context that returns an awaitable, and an awaitable is not even a class or interface, it is simply a pattern.  That suggests a possible solution for the case where you can’t control the async method you are calling: a custom awaitable that is similar to Task.Yield but allows you to compose the results of another Task.
+
+As you may have noticed, Task.Yield() does not return a Task; it returns a YieldAwaitable.  It turns out that the await keyword is not actually restricted to a Task.  The compiler allows that await keyword to be used in any context that returns an awaitable, and an awaitable is not even a class or interface, [it is simply a pattern](http://blogs.msdn.com/b/pfxteam/archive/2011/01/13/10115642.aspx).  That suggests a possible solution for the case where you can’t control the async method you are calling: a custom awaitable that is similar to Task.Yield but allows you to compose the results of another Task.
+
 For this workaround, we need both an awaitable and an awaiter.  The awaitable implementation simply returns the appropriate awaiter:
-   1: public class EnsureCodeCoverageAwaitable
-   2: {
-   3:     private Task task;
-   4:
-   5:     public EnsureCodeCoverageAwaitable(Task task)
-   6:     {
-   7:         this.task = task;
-   8:     }
-   9:
-  10:     public EnsureCodeCoverageAwaiter GetAwaiter()
-  11:     {
-  12:         return new EnsureCodeCoverageAwaiter(task);
-  13:     }
-  14: }
+
+{% highlight C# %}
+public class EnsureCodeCoverageAwaitable
+{
+    private Task task;
+
+    public EnsureCodeCoverageAwaitable(Task task)
+    {
+        this.task = task;
+    }
+
+    public EnsureCodeCoverageAwaiter GetAwaiter()
+    {
+        return new EnsureCodeCoverageAwaiter(task);
+    }
+}
+{% endhighlight %}
+
 The awaiter is where the “yielding” behavior is implemented:
-   1: public class EnsureCodeCoverageAwaiter : INotifyCompletion
-   2: {
-   3:     private readonly System.Runtime.CompilerServices.TaskAwaiter taskAwaiter;
-   4:
-   5:     #if DEBUG
-   6:     private bool forceAsync;
-   7:     #endif
-   8:
-   9:     public EnsureCodeCoverageAwaiter(Task task)
-  10:     {
-  11:         this.taskAwaiter = task.GetAwaiter();
-  12:
-  13:         #if DEBUG
-  14:         this.forceAsync = true;
-  15:         #endif
-  16:     }
-  17:
-  18:     public bool IsCompleted
-  19:     {
-  20:         get
-  21:         {
-  22:             #if DEBUG
-  23:             if (this.forceAsync)
-  24:             {
-  25:                 return false;
-  26:             }
-  27:             #endif
-  28:
-  29:             return this.taskAwaiter.IsCompleted;
-  30:         }
-  31:     }
-  32:
-  33:     public void GetResult()
-  34:     {
-  35:         #if DEBUG
-  36:         this.forceAsync = false;
-  37:         #endif
-  38:
-  39:         this.taskAwaiter.GetResult();
-  40:     }
-  41:
-  42:     public void OnCompleted(Action continuation)
-  43:     {
-  44:         #if DEBUG
-  45:         this.forceAsync = false;
-  46:         #endif
-  47:
-  48:         this.taskAwaiter.OnCompleted(continuation);
-  49:     }
-  50: }
+
+{% highlight C# %}
+public class EnsureCodeCoverageAwaiter : INotifyCompletion
+{
+    private readonly System.Runtime.CompilerServices.TaskAwaiter taskAwaiter;
+
+    #if DEBUG
+    private bool forceAsync;
+    #endif
+
+    public EnsureCodeCoverageAwaiter(Task task)
+    {
+        this.taskAwaiter = task.GetAwaiter();
+
+        #if DEBUG
+        this.forceAsync = true;
+        #endif
+    }
+
+    public bool IsCompleted
+    {
+        get
+        {
+            #if DEBUG
+            if (this.forceAsync)
+            {
+                return false;
+            }
+            #endif
+
+            return this.taskAwaiter.IsCompleted;
+        }
+    }
+
+    public void GetResult()
+    {
+        #if DEBUG
+        this.forceAsync = false;
+        #endif
+
+        this.taskAwaiter.GetResult();
+    }
+
+    public void OnCompleted(Action continuation)
+    {
+        #if DEBUG
+        this.forceAsync = false;
+        #endif
+
+        this.taskAwaiter.OnCompleted(continuation);
+    }
+}
+{% endhighlight %}
+
 Since this will be used in production code, I try to make it a simple pass-through to the standard TaskAwaiter in release builds.  I only enable the peculiar behavior to force the awaitable to be sort-of asynchronous in DEBUG builds.  Also note that if you want to use Task<T> you will need to provide a very similar awaitable/awaiter generic class.
+
 For usability, I also provide an extension method to Task to make it easy to return this custom awaitable:
-   1: public static class TaskExtensions
-   2: {
-   3:     public static EnsureCodeCoverageAwaitable EnsureCodeCoverage(this Task task)
-   4:     {
-   5:         return new EnsureCodeCoverageAwaitable(task);
-   6:     }
-   7: }
+
+{% highlight C# %}
+public static class TaskExtensions
+{
+    public static EnsureCodeCoverageAwaitable EnsureCodeCoverage(this Task task)
+    {
+        return new EnsureCodeCoverageAwaitable(task);
+    }
+}
+{% endhighlight %}
+
 We now have to tweak our product code to use this custom awaitable:
-   1: public class SampleClass
-   2: {
-   3:     private Func<Task> someDependency;
-   4:
-   5:     public SampleClass(Func<Task> someDependency)
-   6:     {
-   7:         this.someDependency = someDependency;
-   8:     }
-   9:
-  10:     public async Task SampleAsyncMethod()
-  11:     {
-  12:         Trace.TraceInformation("Before");
-  13:         await this.someDependency();
-  14:         await this.SomeMethodWeDontControl().EnsureCodeCoverage();
-  15:         Trace.TraceInformation("After");
-  16:     }
-  17:
-  18:     private Task SomeMethodWeDontControl()
-  19:     {
-  20:         return Task.FromResult(0);
-  21:     }
-  22: }
+
+{% highlight C# %}
+public class SampleClass
+{
+    private Func<Task> someDependency;
+
+    public SampleClass(Func<Task> someDependency)
+    {
+        this.someDependency = someDependency;
+    }
+
+    public async Task SampleAsyncMethod()
+    {
+        Trace.TraceInformation("Before");
+        await this.someDependency();
+        await this.SomeMethodWeDontControl().EnsureCodeCoverage();
+        Trace.TraceInformation("After");
+    }
+
+    private Task SomeMethodWeDontControl()
+    {
+        return Task.FromResult(0);
+    }
+}
+{% endhighlight %}
+
 And now the code coverage is once again complete:
 
+![full code coverage](/static/img/2014-11-17-code-coverage-with-async-await_full-coverage.png)
+
 To be sure, this workaround is not a great solution.  It is still unfortunate that we have to modify code at all (whether unit test code or production code) to address a limitation of a tool. It would be much better for the code coverage tool to ignore the portions of the async state machine that are generated by the compiler.  But until that happens, there aren’t many options if you really want to try to get complete code coverage.
-Visual Studio 2015
+
+## Visual Studio 2015
 I'm very pleased to report that this issue seems to be fixed in Visual Studio 2015!
-Since async await is a feature implemented by the compiler, I disassembled some code
-Visual Studio 2013
-Visual Studio 2015
 
+Since async await is a feature implemented by the compiler, I disassembled some code:
 
-
+| Visual Studio 2013 | Visual Studio 2015 |
++--------------------+--------------------+
+| ![full code coverage](/static/img/2014-11-17-code-coverage-with-async-await_vs2013-movenext.png) | ![full code coverage](/static/img/2014-11-17-code-coverage-with-async-await_vs2015-movenext.png) |
+| ![full code coverage](/static/img/2014-11-17-code-coverage-with-async-await_vs2013-sampleasyncmethod.png) | ![full code coverage](/static/img/2014-11-17-code-coverage-with-async-await_vs2015-sampleasyncmethod.png) |
 
 Though the code produced in Visual Studio 2015 seems much cleaner, nothing jumps out at me as explaining why the code coverage is better.  Perhaps there were also changes to the code coverage tools, but I don't know how to confirm that.
+
 If anyone digs in deeper and discovers the reason, leave a comment and I'll update the post.
