@@ -7,12 +7,6 @@ categories:
 published: true
 ---
 
-| Priority apples | Second priority | Third priority |
-|-------|--------|---------|
-| ambrosia | gala | red delicious |
-| pink lady | jazz | macintosh |
-| honeycrisp | granny smith | fuji |
-
 ## Introduction
 WPF uses double-precision floating point numbers (double in C#) in much of its public API and it uses single-precision floating point for much of its internal rendering.  So floating point math is something we deal with constantly.  Oddly enough, I actually knew very little about the gory details until I recently tried to write a container that had to use doubles as a key, which required working around the problems with precision in floating point math.  I found the whole exercise to be very interesting, and so I’ll present what I learned here.
 
@@ -68,16 +62,11 @@ A fascinating observation, and one that is exploited in the binary IEEE 754 form
 ## Binary Representation
 As stated in the introduction, the IEEE 754-2008 standard defines a number of binary formats.  For now we will consider [binary64](http://en.wikipedia.org/wiki/Double_precision_floating-point_format) (double in C#).  As the name suggests, this binary format is 64-bits wide, and allocates the bits as follows:
 
-| First cell|Second cell|Third cell
-| First | Second | Third |
-
-First | Second | | Fourth |
-
-sdfsdfasdfsadfasdfas asdfasdf fasdfsdaf asdfasdfsadf
-
-Sign        | 1 bit
-Exponent    | 11 bits 
-Significand | 52 bits
+| Component | Size |
+|-------|--------|
+| Sign | 1 bit |
+| Exponent | 11 bits |
+| Significand | 52 bits |
 
 ![Bit layout in the 64-bit floating point format](/static/img/2010-05-06-fun-with-floating-point_binary64-bit-layout.png)
 
@@ -145,51 +134,64 @@ And finally, I provide a Round method , which we will discuss next.
 
 ## Investigating the error
 What exactly was wrong with the 0.8 – 0.7 == 0.1 condition at the start of this article?  Using the Binary64 class, it is easy to investigate.
-| Literal Value           | 0.8
-| Binary64 Bits           | 0x3FE999999999999A
-| Sign                    | Positive
-| Unbiased Exponent       | 0x3FE
-| Biased Exponent         | -1
-| Significand             | 0x000999999999999A
-| Implicit leading digit? | Yes
-| Significand Numerator   | 7,205,759,403,792,794
-| Significand Denominator | 4,503,599,627,370,496
-| Significand Fraction    | 1.6000000000000000888178419700125
+
+| Component               | Value                             |
+|-------------------------|-----------------------------------|
+| Literal Value           | 0.8                               |
+| Binary64 Bits           | 0x3FE999999999999A                |
+| Sign                    | Positive                          |
+| Unbiased Exponent       | 0x3FE                             |
+| Biased Exponent         | -1                                |
+| Significand             | 0x000999999999999A                |
+| Implicit leading digit? | Yes                               |
+| Significand Numerator   | 7,205,759,403,792,794             |
+| Significand Denominator | 4,503,599,627,370,496             |
+| Significand Fraction    | 1.6000000000000000888178419700125 |
+
 ![0.8 in base 2](/static/img/2010-05-06-fun-with-floating-point_0.8-in-base2.gif)
 
 So, the actual value is a little more than 0.8 due to the difficulty of encoding this exact value in base 2.  Note that the previous representable value is a little less than 0.8.
 
-| Literal Value           | 0.7
-| Binary64 Bits           | 0x3FE6666666666666
-| Sign                    | Positive
-| Unbiased Exponent       | 0x3FE
-| Biased Exponent         | -1
-| Significand             | 0x0006666666666666
-| Implicit leading digit? | Yes
-| Significand Numerator   | 6,305,039,478,318,694
-| Significand Denominator | 4,503,599,627,370,496
-| Significand Fraction    | 1.3999999999999999111821580299875
+| Component               | Value                             |
+|-------------------------|-----------------------------------|
+| Literal Value           | 0.7                               |
+| Binary64 Bits           | 0x3FE6666666666666                |
+| Sign                    | Positive                          |
+| Unbiased Exponent       | 0x3FE                             |
+| Biased Exponent         | -1                                |
+| Significand             | 0x0006666666666666                |
+| Implicit leading digit? | Yes                               |
+| Significand Numerator   | 6,305,039,478,318,694             |
+| Significand Denominator | 4,503,599,627,370,496             |
+| Significand Fraction    | 1.3999999999999999111821580299875 |
+
 ![0.7 in base 2](/static/img/2010-05-06-fun-with-floating-point_0.7-in-base2.gif)
 
 So the actual value is a little less than 0.7 due to the same difficulty of representing this exact number in base 2.  Note that the next representable value is a little more than 0.7.
 
 Obviously, since we are dealing with two inexact representations, there is an error accumulating in each.  The result of any math operation will likely still contain the error.  Indeed, we can see:
 
-| Literal Value           | 0.8 - 0.7
-| Binary64 Bits           | 0x3fb99999999999A0
-| Sign                    | Positive
-| Unbiased Exponent       | 0x3FB
-| Biased Exponent         | -4
-| Significand             | 0x00099999999999A0
-| Implicit leading digit? | Yes
-| Significand Numerator   | 7,205,759,403,792,800
-| Significand Denominator | 4,503,599,627,370,496
-| Significand Fraction    | 1.6000000000000014210854715202004
+| Component               | Value                             |
+|-------------------------|-----------------------------------|
+| Literal Value           | 0.8 - 0.7                         |
+| Binary64 Bits           | 0x3fb99999999999A0                |
+| Sign                    | Positive                          |
+| Unbiased Exponent       | 0x3FB                             |
+| Biased Exponent         | -4                                |
+| Significand             | 0x00099999999999A0                |
+| Implicit leading digit? | Yes                               |
+| Significand Numerator   | 7,205,759,403,792,800             |
+| Significand Denominator | 4,503,599,627,370,496             |
+| Significand Fraction    | 1.6000000000000014210854715202004 |
+
 ![0.8 - 0.7 in base 2](/static/img/2010-05-06-fun-with-floating-point_0.8-minus-0.7-in-base2.gif)
 
 Obviously this is not exactly right either.  But more interestingly, there are 6 representable binary64 values between the result of calculating 0.8-0.7 and the literal 0.1.  Looking at the binary64 representation for each we see that the error has accumulated in the least significant 6 bits:
-| 0.8&nbsp;-&nbsp;0.7 | 0x3FB99999999999A0 | 11111110111001100110011001100110011001100110011001100110 **100000**
-| 0.1                 | 0x3FB999999999999A | 11111110111001100110011001100110011001100110011001100110 **011010**
+
+| Decimal             | Hex                  | Binary                                                               |
+|---------------------|----------------------|----------------------------------------------------------------------|
+| 0.8&nbsp;-&nbsp;0.7 | `0x3FB99999999999A0` | `11111110111001100110011001100110011001100110011001100110100000`     |
+| 0.1                 | `0x3FB999999999999A` | `11111110111001100110011001100110011001100110011001100110011010`     |
 
 ## Proposal: Rounding by reducing precision
 As we have seen, floating point math is imprecise, and rounding strategies are challenging due to the huge range in the magnitude of error introduced by a single change in the least significant bit.
