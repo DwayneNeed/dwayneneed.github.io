@@ -199,10 +199,15 @@ I'm very pleased to report that this issue seems to be fixed in Visual Studio 20
 
 Since async await is a feature implemented by the compiler, I disassembled some code:
 
-| Visual Studio 2013 | Visual Studio 2015 |
-+--------------------+--------------------+
-| ![full code coverage](/static/img/2014-11-17-code-coverage-with-async-await_vs2013-movenext.png) | ![full code coverage](/static/img/2014-11-17-code-coverage-with-async-await_vs2015-movenext.png) |
-| ![full code coverage](/static/img/2014-11-17-code-coverage-with-async-await_vs2013-sampleasyncmethod.png) | ![full code coverage](/static/img/2014-11-17-code-coverage-with-async-await_vs2015-sampleasyncmethod.png) |
+| Visual Studio 2013 | Visual Studio 2015 |  
++--------------------+--------------------+  
+| foo                | bar                |
+| foo                | bar                |
+
+
+
+| ![VS2013 MoveNext](/static/img/2014-11-17-code-coverage-with-async-await_vs2013-movenext.png) | ![VS2015 MoveNext](/static/img/2014-11-17-code-coverage-with-async-await_vs2015-movenext.png) |  
+| ![VS2013 SampleAsyncMethod](/static/img/2014-11-17-code-coverage-with-async-await_vs2013-sampleasyncmethod.png) | ![VS2015 SampleAsyncMethod](/static/img/2014-11-17-code-coverage-with-async-await_vs2015-sampleasyncmethod.png) |  
 
 Though the code produced in Visual Studio 2015 seems much cleaner, nothing jumps out at me as explaining why the code coverage is better.  Perhaps there were also changes to the code coverage tools, but I don't know how to confirm that.
 
