@@ -6,6 +6,7 @@ categories:
   - .Net
 published: true
 ---
+
 It may be a fools errand, but it is sometimes tempting to chase the elusive goal of achieving 100% code-coverage with unit tests.  I’m not going to argue the merits of using code coverage as part of your test strategy, but if you do want to accurately measure your code coverage, things get tricky with methods that use the C# async await feature.  A quick internet search shows some of the frustration out there:
 * <http://stackoverflow.com/questions/26373915/async-await-unit-test-code-coverage>
 * <http://stackoverflow.com/questions/15603813/code-coverage-for-async-methods>
@@ -199,13 +200,8 @@ I'm very pleased to report that this issue seems to be fixed in Visual Studio 20
 
 Since async await is a feature implemented by the compiler, I disassembled some code:
 
-| Visual Studio 2013 | Visual Studio 2015 |  
-+--------------------+--------------------+  
-| foo                | bar                |
-| foo                | bar                |
-
-
-
+| Visual Studio 2013 | Visual Studio 2015 |
+|--------------------|--------------------|
 | ![VS2013 MoveNext](/static/img/2014-11-17-code-coverage-with-async-await_vs2013-movenext.png) | ![VS2015 MoveNext](/static/img/2014-11-17-code-coverage-with-async-await_vs2015-movenext.png) |  
 | ![VS2013 SampleAsyncMethod](/static/img/2014-11-17-code-coverage-with-async-await_vs2013-sampleasyncmethod.png) | ![VS2015 SampleAsyncMethod](/static/img/2014-11-17-code-coverage-with-async-await_vs2015-sampleasyncmethod.png) |  
 
